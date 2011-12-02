@@ -1,0 +1,3 @@
+[submodule "Modules/ThirdParty/DCMTK/src/dcmtk"]
+       path = Modules/ThirdParty/DCMTK/src/dcmtk
+       url = http://github.com/commontk/DCMTK.git
