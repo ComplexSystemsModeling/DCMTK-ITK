@@ -1,1 +1,2 @@
-itk_module_test()set(ITKIODCMTKTests)
+itk_module_test()
+set(ITKIODCMTKTests)
