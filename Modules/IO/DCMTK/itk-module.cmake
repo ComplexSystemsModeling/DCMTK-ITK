@@ -3,7 +3,8 @@ href=\"http://dicom.offis.de/dcmtk/\">DCMTK</a> DCMTK is a collection of librari
 
 itk_module(ITKIODCMTK
   DEPENDS
-     ITKIOImageBase
+    ITKDCMTK
+    ITKIOImageBase
   TEST_DEPENDS
     ITKTestKernel
   DESCRIPTION
