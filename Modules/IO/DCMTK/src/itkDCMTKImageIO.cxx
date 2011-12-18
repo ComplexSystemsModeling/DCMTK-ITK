@@ -22,7 +22,7 @@
 #include "itksys/SystemTools.hxx"
 #include <iostream>
 
-#include "dcmimgle/dcmimage.h"
+#include "dcmtk/dcmimgle/dcmimage.h"
 
 namespace itk
 {
