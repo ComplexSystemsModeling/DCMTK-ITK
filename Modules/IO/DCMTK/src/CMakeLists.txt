@@ -4,5 +4,5 @@ set(ITKIODCMTK_SRC
 )
 
 add_library(ITKIODCMTK ${ITKIODCMTK_SRC})
-target_link_libraries(ITKIODCMTK  ${ITKIODCMTK_LIBRARIES} ${ITKIOImageBase_LIBRARIES} ${ITKImageIntensity_LIBRARIES})
+target_link_libraries(ITKIODCMTK  ${ITKDCMTK_LIBRARIES} ${ITKIOImageBase_LIBRARIES} ${ITKImageIntensity_LIBRARIES})
 itk_module_target(ITKIODCMTK)
