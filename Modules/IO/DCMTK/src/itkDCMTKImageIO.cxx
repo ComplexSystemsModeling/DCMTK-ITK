@@ -159,30 +159,32 @@ bool DCMTKImageIO::CanWriteFile(const char *name)
   return false;
 }
 
+//------------------------------------------------------------------------------
 void DCMTKImageIO::Read(void *buffer)
 {
   // start simple
-  DicomImage *image; // = new DicomImage("test.dcm");
-
-  // TBD
+  DicomImage *image = new DicomImage( m_FileName.c_str() );
+  if( image != NULL )
+    {
+    if (image->getStatus() == EIS_Normal)
+      {
+      // Uint8 *pixelData = (Uint8 *)(image->getOutputData(8 /* bits per sample */));
+      // if (pixelData != NULL)
+      //  {
+      //  /* do something useful with the pixel data */
+      //  }
+      }
+    else
+      {
+      std::cerr << "Error: cannot load DICOM image (";
+      std::cerr << DicomImage::getString(image->getStatus()) << ")" << std::endl;
+      }
+    }
+  delete image;
 
   // DCMTK MINMAL EXAMPLE
   //#include "diregist.h"   /* required to support color images */
-  ///* ... */
-  //DicomImage *image = new DicomImage("test.dcm");
-  //if (image != NULL)
-  //{
-  //  if (image->getStatus() == EIS_Normal)
-  //  {
-  //  Uint8 *pixelData = (Uint8 *)(image->getOutputData(8 /* bits per sample */));
-  //  if (pixelData != NULL)
-  //    {
-  //    /* do something useful with the pixel data */
-  //    }
-  //  } else
-  //  cerr << "Error: cannot load DICOM image (" << DicomImage::getString(image->getStatus()) << ")" << endl;
-  //}
-  //delete image;
+
 
   // CTK example on how to read with dcmtk and make a QImage
   // EI_Status result = dcmImage.getStatus();
