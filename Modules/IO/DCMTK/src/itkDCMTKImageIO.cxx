@@ -15,10 +15,14 @@
  *  limitations under the License.
  *
  *=========================================================================*/
+
 #include "itkDCMTKImageIO.h"
+
 #include "itkByteSwapper.h"
 #include "itksys/SystemTools.hxx"
 #include <iostream>
+
+#include "dcmimgle/dcmimage.h"
 
 namespace itk
 {
@@ -157,6 +161,9 @@ bool DCMTKImageIO::CanWriteFile(const char *name)
 
 void DCMTKImageIO::Read(void *buffer)
 {
+  // start simple
+  DicomImage *image; // = new DicomImage("test.dcm");
+
   // TBD
 
   // DCMTK MINMAL EXAMPLE
