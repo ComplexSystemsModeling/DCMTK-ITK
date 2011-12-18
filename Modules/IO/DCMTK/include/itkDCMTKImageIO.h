@@ -22,7 +22,6 @@
 #include <fstream>
 #include "itkImageIOBase.h"
 #include <stdio.h>
-//#include "itkRGBPixel.h"
 
 namespace itk
 {
@@ -41,7 +40,6 @@ public:
   typedef DCMTKImageIO              Self;
   typedef ImageIOBase               Superclass;
   typedef SmartPointer< Self >      Pointer;
-  // typedef RGBPixel< unsigned char > RGBPixelType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
