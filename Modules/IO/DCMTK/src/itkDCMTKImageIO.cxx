@@ -29,20 +29,17 @@ namespace itk
 /** Constructor */
 DCMTKImageIO::DCMTKImageIO()
 {
-  //m_ByteOrder = BigEndian;
-  //m_BitMapOffset = 0;
+  m_ByteOrder = BigEndian;
   this->SetNumberOfDimensions(2);
-  //m_PixelType = SCALAR;
-  //m_ComponentType = UCHAR;
-  //m_Spacing[0] = 1.0;
-  //m_Spacing[1] = 1.0;
+  m_PixelType = SCALAR;
+  m_ComponentType = UCHAR;
 
-  //m_Origin[0] = 0.0;
-  //m_Origin[1] = 0.0;
+  //m_FileType =
   //m_FileLowerLeft = 0;
   //m_Depth = 8;
   //m_NumberOfColors = 0;
   //m_ColorTableSize = 0;
+  //m_BitMapOffset = 0;
 
   this->AddSupportedWriteExtension(".dcm");
   this->AddSupportedWriteExtension(".DCM");
@@ -168,16 +165,41 @@ void DCMTKImageIO::Read(void *buffer)
     {
     if (image->getStatus() == EIS_Normal)
       {
-      // Uint8 *pixelData = (Uint8 *)(image->getOutputData(8 /* bits per sample */));
-      // if (pixelData != NULL)
-      //  {
-      //  /* do something useful with the pixel data */
-      //  }
+      // pick a size for output image (should get it from ITK)
+      std::cout << "trying that: " << "const int bitdepth = 8;" << std::endl;
+      const int bitdepth = 8;
+      // try to get the length of the buffer
+      std::cout << "trying that: " << "unsigned long len = image->getOutputDataSize(bitdepth);" << std::endl;
+      unsigned long len = image->getOutputDataSize(bitdepth);
+      // buffer must be allocated
+      std::cout << "trying that: " << "buffer = new char[len];" << std::endl;
+      buffer = new char[len];
+      // get the image in the buffer
+      std::cout << "trying that: " << "image->getOutputData(buffer, bitdepth);" << std::endl;
+      image->getOutputData(buffer, bitdepth);
+      if( buffer != NULL )
+        {
+        // we're good
+        // here is the info that should be used to populate ImageBase
+        m_Dimensions[0] = (unsigned int)(image->getWidth());
+        m_Dimensions[1] = (unsigned int)(image->getHeight());
+        // m_Spacing[0] =
+        // m_Spacing[1] =
+        // m_Origin[0] =
+        // m_Origin[1] =
+        }
+      else
+        {
+        // we're not good, deallocate the buffer
+        // delete[] buffer;
+        /* ynd ... ell */
+        }
       }
     else
       {
       std::cerr << "Error: cannot load DICOM image (";
-      std::cerr << DicomImage::getString(image->getStatus()) << ")" << std::endl;
+      std::cerr << DicomImage::getString(image->getStatus());
+      std::cerr << ")" << std::endl;
       }
     }
   delete image;
@@ -185,12 +207,10 @@ void DCMTKImageIO::Read(void *buffer)
   // DCMTK MINMAL EXAMPLE
   //#include "diregist.h"   /* required to support color images */
 
-
   // CTK example on how to read with dcmtk and make a QImage
   // EI_Status result = dcmImage.getStatus();
   //  if (result != EIS_Normal)
   //  {
-  //    logger.error(QString("Rendering of DICOM image failed for thumbnail failed: ") + DicomImage::getString(result));
   //    return;
   //  }
   //  // Select first window defined in image. If none, compute min/max window as best guess.
@@ -271,6 +291,7 @@ void
 DCMTKImageIO
 ::Write(const void *buffer)
 {
+(void)(buffer);
 }
 
 /** Print Self Method */
