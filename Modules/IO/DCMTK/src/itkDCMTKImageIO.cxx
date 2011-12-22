@@ -165,28 +165,25 @@ void DCMTKImageIO::Read(void *buffer)
     {
     if (image->getStatus() == EIS_Normal)
       {
+      m_Dimensions[0] = (unsigned int)(image->getWidth());
+      m_Dimensions[1] = (unsigned int)(image->getHeight());
+      // m_Spacing[0] =
+      // m_Spacing[1] =
+      // m_Origin[0] =
+      // m_Origin[1] =
+
       // pick a size for output image (should get it from ITK)
-      std::cout << "trying that: " << "const int bitdepth = 8;" << std::endl;
       const int bitdepth = 8;
-      // try to get the length of the buffer
-      std::cout << "trying that: " << "unsigned long len = image->getOutputDataSize(bitdepth);" << std::endl;
-      unsigned long len = image->getOutputDataSize(bitdepth);
+
       // buffer must be allocated
-      std::cout << "trying that: " << "buffer = new char[len];" << std::endl;
-      buffer = new char[len];
+      buffer = new char[m_Dimensions[0]*m_Dimensions[1]];
+
       // get the image in the buffer
-      std::cout << "trying that: " << "image->getOutputData(buffer, bitdepth);" << std::endl;
-      image->getOutputData(buffer, bitdepth);
+      unsigned long len = image->getOutputDataSize(bitdepth);
+      image->getOutputData(buffer, len, bitdepth);
       if( buffer != NULL )
         {
         // we're good
-        // here is the info that should be used to populate ImageBase
-        m_Dimensions[0] = (unsigned int)(image->getWidth());
-        m_Dimensions[1] = (unsigned int)(image->getHeight());
-        // m_Spacing[0] =
-        // m_Spacing[1] =
-        // m_Origin[0] =
-        // m_Origin[1] =
         }
       else
         {
