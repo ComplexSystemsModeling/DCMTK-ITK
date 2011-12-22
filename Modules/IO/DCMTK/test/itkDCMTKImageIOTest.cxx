@@ -19,6 +19,7 @@
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkDCMTKImageIO.h"
+#include "itkRescaleIntensityImageFilter.h"
 
 #include <fstream>
 
@@ -77,6 +78,34 @@ int itkDCMTKImageIOTest(int ac, char* av[])
   //  std::cerr << e << std::endl;
   //  return EXIT_FAILURE;
   //  }
+
+  // Rescale intensities and rewrite the image in another format
+  //
+  typedef unsigned char                   WritePixelType;
+  typedef itk::Image< WritePixelType, 2 > WriteImageType;
+  typedef itk::RescaleIntensityImageFilter<
+    InputImageType, WriteImageType >      RescaleFilterType;
+
+  RescaleFilterType::Pointer rescaler = RescaleFilterType::New();
+  rescaler->SetOutputMinimum(   0 );
+  rescaler->SetOutputMaximum( 255 );
+  rescaler->SetInput( reader->GetOutput() );
+
+  typedef itk::ImageFileWriter< WriteImageType >  Writer2Type;
+  Writer2Type::Pointer writer2 = Writer2Type::New();
+  writer2->SetFileName( av[3] );
+  writer2->SetInput( rescaler->GetOutput() );
+
+  try
+    {
+    writer2->Update();
+    }
+  catch (itk::ExceptionObject & e)
+    {
+    std::cerr << "exception in file writer " << std::endl;
+    std::cerr << e << std::endl;
+    return EXIT_FAILURE;
+    }
 
   dcmtkImageIO->Print( std::cout );
 
