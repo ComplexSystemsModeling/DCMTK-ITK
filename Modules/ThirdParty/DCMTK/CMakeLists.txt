@@ -27,7 +27,7 @@ else()
     ${ITKDCMTK_INCLUDE_ROOT}/oflog/include
     ${ITKDCMTK_INCLUDE_ROOT}/ofstd/include
     )
-  set(ITKDCMTK_LIBRARIES  dcmdata dcmdsig dcmimage dcmimgle dcmjpeg dcmnet dcmpstat dcmqrdb dcmsr dcmtls dcmwlm ijg8 ijg12 ijg16 oflog ofstd )
+  set(ITKDCMTK_LIBRARIES dcmdata dcmdsig dcmimage dcmimgle dcmjpeg dcmnet dcmpstat dcmqrdb dcmsr dcmtls dcmwlm ijg8 ijg12 ijg16 oflog ofstd )
 endif()
 
 itk_module_impl()
