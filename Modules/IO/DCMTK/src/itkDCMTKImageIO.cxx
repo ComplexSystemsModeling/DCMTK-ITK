@@ -35,6 +35,7 @@ DCMTKImageIO::DCMTKImageIO()
   m_ComponentType = UCHAR;
 
   //m_FileType =
+
   //m_FileLowerLeft = 0;
   //m_Depth = 8;
   //m_NumberOfColors = 0;
@@ -46,10 +47,10 @@ DCMTKImageIO::DCMTKImageIO()
   this->AddSupportedWriteExtension(".dicom");
   this->AddSupportedWriteExtension(".DICOM");
 
-  this->AddSupportedReadExtension(".dcm");
-  this->AddSupportedReadExtension(".DCM");
-  this->AddSupportedReadExtension(".dicom");
-  this->AddSupportedReadExtension(".DICOM");
+  // this->AddSupportedReadExtension(".dcm");
+  // this->AddSupportedReadExtension(".DCM");
+  // this->AddSupportedReadExtension(".dicom");
+  // this->AddSupportedReadExtension(".DICOM");
 }
 
 /** Destructor */
@@ -172,13 +173,10 @@ void DCMTKImageIO::Read(void *buffer)
       // m_Origin[0] =
       // m_Origin[1] =
 
-      // pick a size for output image (should get it from ITK)
+      // pick a size for output image (should get it from DCMTK in the ReadImageInformation()))
       const int bitdepth = 8;
 
-      // buffer must be allocated
-      buffer = new char[m_Dimensions[0]*m_Dimensions[1]];
-
-      // get the image in the buffer
+      // get the image in the DCMTK buffer
       unsigned long len = image->getOutputDataSize(bitdepth);
       image->getOutputData(buffer, len, bitdepth);
       if( buffer != NULL )
@@ -187,6 +185,7 @@ void DCMTKImageIO::Read(void *buffer)
         }
       else
         {
+        std::cerr << "Houston, we have a DICOM image." << std::endl;
         // we're not good, deallocate the buffer
         // delete[] buffer;
         /* ynd ... ell */
@@ -272,10 +271,21 @@ void DCMTKImageIO::Read(void *buffer)
 
 /**
  *  Read Information about the DICOM file
- *  and put the cursor of the stream just before the first data pixel
  */
 void DCMTKImageIO::ReadImageInformation()
 {
+  // start simple
+  DicomImage *image = new DicomImage( m_FileName.c_str() );
+  if( image != NULL )
+    {
+    if (image->getStatus() == EIS_Normal)
+      {
+      m_Dimensions[0] = (unsigned int)(image->getWidth());
+      m_Dimensions[1] = (unsigned int)(image->getHeight());
+      // try to get the "native" pixel type from dcmtk
+      }
+    }
+  delete image;
 }
 
 void

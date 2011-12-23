@@ -34,7 +34,7 @@ int itkDCMTKImageIOTest(int ac, char* av[])
     return EXIT_FAILURE;
     }
 
-  typedef short InputPixelType;
+  typedef short                                   InputPixelType;
   typedef itk::Image< InputPixelType, 2 >         InputImageType;
   typedef itk::ImageFileReader< InputImageType >  ReaderType;
 
@@ -44,6 +44,7 @@ int itkDCMTKImageIOTest(int ac, char* av[])
   ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName( av[1] );
   reader->SetImageIO( dcmtkImageIO );
+  reader->DebugOn();
 
   try
     {
@@ -93,6 +94,7 @@ int itkDCMTKImageIOTest(int ac, char* av[])
 
   typedef itk::ImageFileWriter< WriteImageType >  Writer2Type;
   Writer2Type::Pointer writer2 = Writer2Type::New();
+  writer2->DebugOn();
   writer2->SetFileName( av[3] );
   writer2->SetInput( rescaler->GetOutput() );
 
