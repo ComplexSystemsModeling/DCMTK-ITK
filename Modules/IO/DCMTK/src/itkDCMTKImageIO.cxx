@@ -23,24 +23,24 @@
 #include <iostream>
 
 #include "dcmtk/dcmimgle/dcmimage.h"
+#include "dcmtk/dcmjpeg/djdecode.h"
 
 namespace itk
 {
 /** Constructor */
 DCMTKImageIO::DCMTKImageIO()
 {
+  // standard ImageIOBase variables
   m_ByteOrder = BigEndian;
   this->SetNumberOfDimensions(2);
   m_PixelType = SCALAR;
   m_ComponentType = UCHAR;
-
   //m_FileType =
 
-  //m_FileLowerLeft = 0;
-  //m_Depth = 8;
-  //m_NumberOfColors = 0;
-  //m_ColorTableSize = 0;
-  //m_BitMapOffset = 0;
+  // specific members
+  m_UseJPEGCodec = false;
+  m_UseJPLSCodec = false;
+  m_UseRLECodec  = false;
 
   this->AddSupportedWriteExtension(".dcm");
   this->AddSupportedWriteExtension(".DCM");
@@ -174,6 +174,8 @@ void DCMTKImageIO::Read(void *buffer)
       // m_Origin[1] =
 
       // pick a size for output image (should get it from DCMTK in the ReadImageInformation()))
+      // NOTE ALEX: EP_Representation is made for that
+      // but i don t know yet where to fetch it from
       const int bitdepth = 8;
 
       // get the image in the DCMTK buffer
@@ -200,73 +202,6 @@ void DCMTKImageIO::Read(void *buffer)
     }
   delete image;
 
-  // DCMTK MINMAL EXAMPLE
-  //#include "diregist.h"   /* required to support color images */
-
-  // CTK example on how to read with dcmtk and make a QImage
-  // EI_Status result = dcmImage.getStatus();
-  //  if (result != EIS_Normal)
-  //  {
-  //    return;
-  //  }
-  //  // Select first window defined in image. If none, compute min/max window as best guess.
-  //  // Only relevant for monochrome
-  //  if (d->AutoWindowLevel)
-  //  {
-  //    if (dcmImage.isMonochrome())
-  //    {
-  //        if (defaultIntensity && dcmImage.getWindowCount() > 0)
-  //        {
-  //          dcmImage.setWindow(0);
-  //        }
-  //        else
-  //        {
-  //          dcmImage.setMinMaxWindow(OFTrue /* ignore extreme values */);
-  //          dcmImage.getWindow(d->DicomIntensityLevel, d->DicomIntensityWindow);
-  //        }
-  //    }
-  //  }
-  //  else
-  //  {
-  //    dcmImage.setWindow(d->DicomIntensityLevel, d->DicomIntensityWindow);
-  //  }
-  //  /* get image extension and prepare image header */
-  //  const unsigned long width = dcmImage.getWidth();
-  //  const unsigned long height = dcmImage.getHeight();
-  //  unsigned long offset = 0;
-  //  unsigned long length = 0;
-  //  QString header;
-  //
-  //  if (dcmImage.isMonochrome())
-  //  {
-  //    // write PGM header (binary monochrome image format)
-  //    header = QString("P5 %1 %2 255\n").arg(width).arg(height);
-  //    offset = header.length();
-  //    length = width * height + offset;
-  //  }
-  //  else
-  //  {
-  //    // write PPM header (binary color image format)
-  //    header = QString("P6 %1 %2 255\n").arg(width).arg(height);
-  //    offset = header.length();
-  //    length = width * height * 3 /* RGB */ + offset;
-  //  }
-  //  /* create output buffer for DicomImage class */
-  //  QByteArray buffer;
-  //  /* copy header to output buffer and resize it for pixel data */
-  //  buffer.append(header);
-  //  buffer.resize(length);
-  //
-  //  /* render pixel data to buffer */
-  //  if (dcmImage.getOutputData(static_cast<void *>(buffer.data() + offset), length - offset, 8, 0))
-  //  {
-  //    if (!image.loadFromData( buffer ))
-  //      {
-  //          logger.error("QImage couldn't created");
-  //      }
-  //  }
-  //  this->addImage(image);
-
 }
 
 /**
@@ -274,18 +209,53 @@ void DCMTKImageIO::Read(void *buffer)
  */
 void DCMTKImageIO::ReadImageInformation()
 {
-  // start simple
+  std::cout << "Starting: ReadImageInformation." << std::endl;
+
+  // NOTE ALEX: this is brutal as it reads the image
+  // we shoul dbe able to have something smarter and faster
+  // by working with the metadata only
+  // http://support.dcmtk.org/wiki/dcmtk/howto/loadmetaheader
+
+  // Make it work first, then make it work better
+  // start simple, brutal
   DicomImage *image = new DicomImage( m_FileName.c_str() );
   if( image != NULL )
     {
+    if( image->getStatus() != EIS_Normal )
+      {
+      delete image;
+      image = NULL;
+      DJDecoderRegistration::registerCodecs(); // register JPEG codecs
+      image = new DicomImage( m_FileName.c_str() );
+      if( image != NULL )
+        {
+        if( image->getStatus() != EIS_Normal )
+          {
+          // try again with other codecs
+          }
+        }
+      }
+
+    // at this stage we have exhausted all codecs,
     if (image->getStatus() == EIS_Normal)
       {
       m_Dimensions[0] = (unsigned int)(image->getWidth());
       m_Dimensions[1] = (unsigned int)(image->getHeight());
       // try to get the "native" pixel type from dcmtk
       }
+    else
+      {
+      std::cerr << "DCMTK could not read the Image.";
+      std::cerr << "The transfer syntax might not be supported." << std::endl;
+      }
+    }
+  else
+    {
+    std::cerr << "DCMTKImageIO::ReadImageInformation: DicomImage could not read the file." << std::endl;
     }
   delete image;
+
+  std::cout << "Ending  : ReadImageInformation." << std::endl;
 }
 
 void
