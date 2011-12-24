@@ -9,7 +9,7 @@ itk_add_test(NAME itkDCMTKImageIOTest1
               ${ITK_TEST_OUTPUT_DIR}/itkDCMTKImageIOTest.dcm
               ${ITK_TEST_OUTPUT_DIR}/itkDCMTKImageIOTest.png
               ${ITK_TEST_OUTPUT_DIR}/itkDCMTKRescaleImageIOTest.dcm)
-itk_add_test(NAME itkDCMTKImageIOTest2
+itk_add_test(NAME itkDCMTKImageIOTest3
       COMMAND ITKIODCMTKTestDriver itkDCMTKImageIOTest
               DATA{${ITK_DATA_ROOT}/Input/012345.002.050}
               ${ITK_TEST_OUTPUT_DIR}/itkDCMTKImageIOTest3.dcm
