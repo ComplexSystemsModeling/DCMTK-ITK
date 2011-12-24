@@ -80,6 +80,12 @@ private:
   DCMTKImageIO(const Self &);     //purposely not implemented
   void operator=(const Self &); //purposely not implemented
 
+
+  /*----- internal helpers --------------------------------------------*/
+  bool m_UseJPEGCodec;
+  bool m_UseJPLSCodec;
+  bool m_UseRLECodec;
+
 };
 } // end namespace itk
 
