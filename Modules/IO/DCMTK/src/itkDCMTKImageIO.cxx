@@ -241,7 +241,18 @@ void DCMTKImageIO::ReadImageInformation()
       {
       m_Dimensions[0] = (unsigned int)(image->getWidth());
       m_Dimensions[1] = (unsigned int)(image->getHeight());
+      // if 3d, m_Dimension[2] should be image->getNumber
       // try to get the "native" pixel type from dcmtk
+      std::cout << "DCMTKImaegIO: Representation " << image->getInterData()->getRepresentation() << std::endl;
+      std::cout << "DCMTKImageIO: Depth: " << image->getDepth() << std::endl;
+      if( image->getDepth() == 16 )
+        m_ComponentType = USHORT;
+
+      double min = 0.0;
+      double max = 0.0;
+      image->getMinMaxValues( min, max );
+      std::cout << "DCMTKImageIO: min: " << min << std::endl;
+      std::cout << "DCMTKImageIO: max: " << max << std::endl;
       }
     else
       {
