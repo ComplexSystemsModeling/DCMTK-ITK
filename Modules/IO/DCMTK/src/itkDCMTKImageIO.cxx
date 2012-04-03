@@ -24,12 +24,16 @@
 
 #include "dcmtk/dcmimgle/dcmimage.h"
 #include "dcmtk/dcmjpeg/djdecode.h"
+#include "dcmtk/dcmjpls/djdecode.h"
+#include "dcmtk/dcmdata/dcrledrg.h"
 
 namespace itk
 {
 /** Constructor */
 DCMTKImageIO::DCMTKImageIO()
 {
+  m_DImage = NULL;
+
   // standard ImageIOBase variables
   m_ByteOrder = BigEndian;
   this->SetNumberOfDimensions(2);
@@ -161,13 +165,12 @@ bool DCMTKImageIO::CanWriteFile(const char *name)
 void DCMTKImageIO::Read(void *buffer)
 {
   // start simple
-  DicomImage *image = new DicomImage( m_FileName.c_str() );
-  if( image != NULL )
+  if( m_DImage != NULL )
     {
-    if (image->getStatus() == EIS_Normal)
+    if (m_DImage->getStatus() == EIS_Normal)
       {
-      m_Dimensions[0] = (unsigned int)(image->getWidth());
-      m_Dimensions[1] = (unsigned int)(image->getHeight());
+      m_Dimensions[0] = (unsigned int)(m_DImage->getWidth());
+      m_Dimensions[1] = (unsigned int)(m_DImage->getHeight());
       // m_Spacing[0] =
       // m_Spacing[1] =
       // m_Origin[0] =
@@ -179,8 +182,8 @@ void DCMTKImageIO::Read(void *buffer)
       const int bitdepth = 8;
 
       // get the image in the DCMTK buffer
-      unsigned long len = image->getOutputDataSize(bitdepth);
-      image->getOutputData(buffer, len, bitdepth);
+      unsigned long len = m_DImage->getOutputDataSize(bitdepth);
+      m_DImage->getOutputData(buffer, len, bitdepth);
       if( buffer != NULL )
         {
         // we're good
@@ -196,11 +199,10 @@ void DCMTKImageIO::Read(void *buffer)
     else
       {
       std::cerr << "Error: cannot load DICOM image (";
-      std::cerr << DicomImage::getString(image->getStatus());
+      std::cerr << DicomImage::getString(m_DImage->getStatus());
       std::cerr << ")" << std::endl;
       }
     }
-  delete image;
 
 }
 
@@ -211,6 +213,10 @@ void DCMTKImageIO::ReadImageInformation()
 {
   std::cout << "Starting: ReadImageInformation." << std::endl;
 
+  
+  DJDecoderRegistration::registerCodecs();
+  DcmRLEDecoderRegistration::registerCodecs();
+	
   // NOTE ALEX: this is brutal as it reads the image
   // we shoul dbe able to have something smarter and faster
   // by working with the metadata only
@@ -218,39 +224,35 @@ void DCMTKImageIO::ReadImageInformation()
 
   // Make it work first, then make it work better
   // start simple, brutal
-  DicomImage *image = new DicomImage( m_FileName.c_str() );
-  if( image != NULL )
+  if( m_DImage == NULL )
     {
-    if( image->getStatus() != EIS_Normal )
+    m_DImage = new DicomImage( m_FileName.c_str() );
+    }
+  else
+    {
+    if( !m_DicomImageSetByUser )
       {
-      delete image;
-      image = NULL;
-      DJDecoderRegistration::registerCodecs(); // register JPEG codecs
-      image = new DicomImage( m_FileName.c_str() );
-      if( image != NULL )
-        {
-        if( image->getStatus() != EIS_Normal )
-          {
-          // try again with other codecs
-          }
-        }
+      delete m_DImage;
+      m_DImage = new DicomImage( m_FileName.c_str() );
       }
+    }
 
-    // at this stage we have exhausted all codecs,
-    if (image->getStatus() == EIS_Normal)
+  if( m_DImage != NULL )
+    {
+    if (m_DImage->getStatus() == EIS_Normal)
       {
-      m_Dimensions[0] = (unsigned int)(image->getWidth());
-      m_Dimensions[1] = (unsigned int)(image->getHeight());
-      // if 3d, m_Dimension[2] should be image->getNumber
+      m_Dimensions[0] = (unsigned int)(m_DImage->getWidth());
+      m_Dimensions[1] = (unsigned int)(m_DImage->getHeight());
+      // if 3d, m_Dimension[2] should be m_DImage->getNumber
       // try to get the "native" pixel type from dcmtk
-      std::cout << "DCMTKImaegIO: Representation " << image->getInterData()->getRepresentation() << std::endl;
-      std::cout << "DCMTKImageIO: Depth: " << image->getDepth() << std::endl;
-      if( image->getDepth() == 16 )
+      std::cout << "DCMTKImaegIO: Representation " << m_DImage->getInterData()->getRepresentation() << std::endl;
+      std::cout << "DCMTKImageIO: Depth: " << m_DImage->getDepth() << std::endl;
+      if( m_DImage->getDepth() == 16 )
         m_ComponentType = USHORT;
 
       double min = 0.0;
       double max = 0.0;
-      image->getMinMaxValues( min, max );
+      m_DImage->getMinMaxValues( min, max );
       std::cout << "DCMTKImageIO: min: " << min << std::endl;
       std::cout << "DCMTKImageIO: max: " << max << std::endl;
       }
@@ -264,7 +266,6 @@ void DCMTKImageIO::ReadImageInformation()
     {
     std::cerr << "DCMTKImageIO::ReadImageInformation: DicomImage could not read the file." << std::endl;
     }
-  delete image;
 
   std::cout << "Ending  : ReadImageInformation." << std::endl;
 }
