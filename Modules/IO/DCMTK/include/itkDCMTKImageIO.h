@@ -20,8 +20,9 @@
 
 
 #include <fstream>
-#include "itkImageIOBase.h"
 #include <stdio.h>
+#include "itkImageIOBase.h"
+#include "dcmtk/dcmimgle/dcmimage.h"
 
 namespace itk
 {
@@ -46,6 +47,13 @@ public:
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(DCMTKImageIO, Superclass);
+  
+  /** */
+  void SetDicomImagePointer( DicomImage* UserProvided)
+    {
+    m_DImage = UserProvided;
+    m_DicomImageSetByUser = true;
+    };
 
   /*-------- This part of the interfaces deals with reading data. ----- */
 
@@ -85,6 +93,10 @@ private:
   bool m_UseJPEGCodec;
   bool m_UseJPLSCodec;
   bool m_UseRLECodec;
+
+  DicomImage* m_DImage;
+
+  bool m_DicomImageSetByUser;
 
 };
 } // end namespace itk

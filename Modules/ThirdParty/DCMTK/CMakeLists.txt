@@ -11,7 +11,7 @@ else()
   set(ITKDCMTK_INCLUDE_ROOT ${ITKDCMTK_SOURCE_DIR}/src/dcmtk)
   set(ITKDCMTK_INCLUDE_DIRS
     ${ITKDCMTK_BINARY_DIR}/src/dcmtk/include
-    ${ITKDCMTK_INCLUDE_ROOT}/config/include
+    #${ITKDCMTK_INCLUDE_ROOT}/config/include
     ${ITKDCMTK_INCLUDE_ROOT}/dcmdata/include
     ${ITKDCMTK_INCLUDE_ROOT}/dcmimage/include
     ${ITKDCMTK_INCLUDE_ROOT}/dcmimgle/include

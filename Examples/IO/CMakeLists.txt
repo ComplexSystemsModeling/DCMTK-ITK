@@ -1,7 +1,13 @@
 project(IOExamples)
 
+include_directories( ${ITKDCMTK_INCLUDE_DIRS} )
+message( "ITKDCMTK_INCLUDE_DIRS ${ITKDCMTK_INCLUDE_DIRS}" )
+
 add_executable(ImageReadWrite ImageReadWrite.cxx )
 target_link_libraries(ImageReadWrite  ${ITK_LIBRARIES})
+
+add_executable(DICOMBenchmark DICOMBenchmark.cxx )
+target_link_libraries(DICOMBenchmark ${ITK_LIBRARIES})
 
 add_executable(ImageReadCastWrite ImageReadCastWrite.cxx )
 target_link_libraries(ImageReadCastWrite  ${ITK_LIBRARIES})
